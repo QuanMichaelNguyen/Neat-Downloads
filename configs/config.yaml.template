@@ -1,0 +1,85 @@
+#############################################
+# Neat Downloads - Configuration File
+#
+# This file controls how your downloads are automatically organized.
+# You can customize folder locations, file categories, and cloud integration.
+#############################################
+
+# The folder to monitor for new downloads
+# Default: Your system Downloads folder
+watch_dir: "%USERPROFILE%/Downloads"
+
+# Categories and their corresponding folders
+# You can add your own categories or modify these paths
+categories:
+  documents: "%USERPROFILE%/Downloads/Documents"
+  images: "%USERPROFILE%/Downloads/Media/Images"
+  videos: "%USERPROFILE%/Downloads/Media/Videos"
+  audio: "%USERPROFILE%/Downloads/Media/Audio"
+  software: "%USERPROFILE%/Downloads/Software"
+  archives: "%USERPROFILE%/Downloads/Archives"
+
+# File extensions and which category they belong to
+# Add your own extensions or change the categories
+file_patterns:
+  # Documents
+  ".pdf": "documents"
+  ".doc": "documents"
+  ".docx": "documents"
+  ".txt": "documents"
+  ".xlsx": "documents"
+  ".csv": "documents"
+  ".ppt": "documents"
+  ".pptx": "documents"
+
+  # Images
+  ".jpg": "images"
+  ".jpeg": "images"
+  ".png": "images"
+  ".gif": "images"
+  ".webp": "images"
+  ".svg": "images"
+
+  # Videos
+  ".mp4": "videos"
+  ".mkv": "videos"
+  ".avi": "videos"
+  ".mov": "videos"
+
+  # Audio
+  ".mp3": "audio"
+  ".wav": "audio"
+  ".flac": "audio"
+
+  # Software
+  ".exe": "software"
+  ".msi": "software"
+  ".dmg": "software"
+  ".appimage": "software"
+
+  # Archives
+  ".zip": "archives"
+  ".rar": "archives"
+  ".7z": "archives"
+  ".tar": "archives"
+  ".gz": "archives"
+
+#############################################
+# Dropbox Integration (Optional)
+#############################################
+
+# Set to true to enable Dropbox integration
+enable_dropbox: false
+
+# Your Dropbox application credentials
+# Get these by creating an app at https://www.dropbox.com/developers/apps
+dropbox_app_key: "YOUR_APP_KEY_HERE"
+dropbox_app_secret: "YOUR_APP_SECRET_HERE"
+
+# The folder inside your Dropbox to monitor
+dropbox_folder: "/Downloads"
+
+# Sync options
+sync_to_dropbox: true # Upload categorized files to Dropbox
+sync_from_dropbox: true # Organize files found in your Dropbox folder
+sync_interval: 5 # How often to check Dropbox (in minutes)

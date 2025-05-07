@@ -9,6 +9,15 @@ type Config struct {
 	WatchDir     string            `yaml:"watch_dir"`
 	Categories   map[string]string `yaml:"categories"`
 	FilePatterns map[string]string `yaml:"file_patterns"`
+
+	// Dropbox settings
+	EnableDropbox    bool   `yaml:"enable_dropbox"`
+	DropboxAppKey    string `yaml:"dropbox_app_key"`
+	DropboxAppSecret string `yaml:"dropbox_app_secret"`
+	DropboxFolder    string `yaml:"dropbox_folder"`    // Folder to monitor within Dropbox
+	SyncToDropbox    bool   `yaml:"sync_to_dropbox"`   // Whether to upload local files to Dropbox
+	SyncFromDropbox  bool   `yaml:"sync_from_dropbox"` // Whether to download Dropbox files locally
+	SyncInterval     int    `yaml:"sync_interval"`     // In minutes		   ``
 }
 
 func LoadConfig(configPath string) (*Config, error) {
