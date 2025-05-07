@@ -1,0 +1,7 @@
+build/bin
+node_modules
+frontend/dist
+
+package-lock.json
+package.json
+package.json.md5

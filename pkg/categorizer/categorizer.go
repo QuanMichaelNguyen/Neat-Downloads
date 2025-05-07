@@ -15,7 +15,6 @@ type Categorizer struct {
 }
 
 func NewCategorizer(config *configs.Config) *Categorizer {
-	log.Printf("Creating new categorizer with config: %+v", config)
 	return &Categorizer{
 		config: config,
 	}
@@ -31,19 +30,15 @@ func (c *Categorizer) GetCategoryForExtension(ext string) string {
 
 func (c *Categorizer) CategorizeFile(filePath string) error {
 	// Skip directories
-	fileInfo, err := os.Stat(filePath)
+	fileInfo, err := os.Stat(filePath) // Stat returns file name (info)
 	if err != nil {
-		log.Printf("Error getting file info for %s: %v", filePath, err)
 		return err
 	}
 	if fileInfo.IsDir() {
-		log.Printf("Skipping directory: %s", filePath)
 		return nil
 	}
-
 	// Take file extensions
-	ext := strings.ToLower(filepath.Ext(filePath))
-	log.Printf("Processing file: %s with extension: %s", filePath, ext)
+	ext := strings.ToLower(filepath.Ext(filePath)) // Ext returns the extension used by path
 
 	// Categorize based on extension
 	category, found := c.config.FilePatterns[ext]
@@ -59,24 +54,20 @@ func (c *Categorizer) CategorizeFile(filePath string) error {
 		return nil
 	}
 
-	log.Printf("Moving file %s to category %s (directory: %s)", filePath, category, destDir)
-
 	// Move file to category folder
 	err = utils.MoveFile(filePath, destDir)
 	if err != nil {
-		log.Printf("Error moving file %s to %s: %v", filePath, destDir, err)
 		return err
 	}
 
-	// Always add to sync queue for UI updates, regardless of Dropbox settings
-	fileName := filepath.Base(filePath)
-	newLocalPath := filepath.Join(destDir, fileName)
-	log.Printf("Adding file to sync queue: %s (category: %s)", newLocalPath, category)
-	c.AddToSyncQueue(newLocalPath, category)
-
-	// If Dropbox sync is enabled, handle Dropbox sync separately
+	// If Dropbox sync is enabled, upload to Dropbox too
 	if c.config.EnableDropbox && c.config.SyncToDropbox {
-		log.Printf("Dropbox sync enabled, will sync file: %s", newLocalPath)
+		fileName := filepath.Base(filePath)
+		newLocalPath := filepath.Join(destDir, fileName)
+
+		// This will be handled in main.go with a file queue
+		// that main.go will process
+		c.AddToSyncQueue(newLocalPath, category)
 	}
 
 	return nil
@@ -99,7 +90,6 @@ func (c *Categorizer) AddToSyncQueue(localPath, category string) {
 		LocalPath: localPath,
 		Category:  category,
 	})
-	log.Printf("Added to sync queue: %s (category: %s)", localPath, category)
 }
 
 func (c *Categorizer) GetSyncQueue() []SyncQueueItem {
@@ -108,9 +98,6 @@ func (c *Categorizer) GetSyncQueue() []SyncQueueItem {
 
 	items := make([]SyncQueueItem, len(syncQueue))
 	copy(items, syncQueue)
-	if len(items) > 0 {
-		log.Printf("Retrieved %d items from sync queue: %+v", len(items), items)
-	}
 	syncQueue = []SyncQueueItem{}
 
 	return items

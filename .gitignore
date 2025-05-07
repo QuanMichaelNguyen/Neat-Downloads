@@ -1,3 +1,45 @@
 .env
 PLAN.md
 configs/config.yaml
+
+# Go
+*.exe
+*.exe~
+*.dll
+*.so
+*.dylib
+*.test
+*.out
+
+# Node
+node_modules/
+dist/
+build/
+.npm/
+.vite/
+.cache/
+*.log
+
+# System
+.DS_Store
+Thumbs.db
+
+# Editor
+*.swp
+*.swo
+.idea/
+.vscode/
+
+# Env
+.env
+.env.*
+
+# Wails auto-generated
+ui-wails/frontend/wailsjs/go/
+ui-wails/frontend/.vite/
+ui-wails/frontend/.env
+
+# Misc
+*.db
+*.sqlite
+*.pyc

@@ -9,6 +9,7 @@ import (
 	"neat-download/internal/watcher"
 	"os"
 	"os/signal"
+	"path"
 	"path/filepath"
 	"syscall"
 	"time"
@@ -53,7 +54,6 @@ func main() {
 			fmt.Println("Please authorize the app. Visit this URL:")
 			fmt.Println(dropboxClient.GetAuthURL())
 			fmt.Print("Enter the authorization code: ")
-
 			var code string
 			fmt.Scanln(&code)
 
@@ -111,9 +111,21 @@ func syncWorker(client *cloud.DropboxClient, cat *categorizer.Categorizer, confi
 		items := cat.GetSyncQueue()
 		for _, item := range items {
 			fileName := filepath.Base(item.LocalPath)
-			dropboxPath := filepath.Join(config.DropboxFolder, item.Category, fileName)
+			dropboxDir := path.Join(config.DropboxFolder, item.Category)
+			dropboxPath := path.Join(dropboxDir, fileName)
+			log.Printf("Preparing to ensure Dropbox folder: %s", dropboxDir)
 
-			err := client.UploadFile(item.LocalPath, dropboxPath)
+			// Ensure the folder exists in Dropbox
+			err := client.EnsureFolder(dropboxDir)
+			if err != nil {
+				log.Printf("Failed to ensure Dropbox folder %s: %v", dropboxDir, err)
+				continue
+			}
+			log.Printf("Ensured Dropbox folder: %s", dropboxDir)
+
+			log.Printf("Uploading %s to Dropbox path: %s", item.LocalPath, dropboxPath)
+
+			err = client.UploadFile(item.LocalPath, dropboxPath)
 			if err != nil {
 				log.Printf("Failed to upload %s to Dropbox: %v", item.LocalPath, err)
 				continue

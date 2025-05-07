@@ -225,3 +225,25 @@ func (d *DropboxClient) DownloadFile(dropboxPath, localPath string) error {
 	_, err = io.Copy(out, resp.Body)
 	return err
 }
+
+func (d *DropboxClient) EnsureFolder(path string) error {
+	url := "https://api.dropboxapi.com/2/files/create_folder_v2"
+	body := map[string]interface{}{
+		"path":       path,
+		"autorename": false,
+	}
+	jsonBody, _ := json.Marshal(body)
+	req, _ := http.NewRequest("POST", url, bytes.NewBuffer(jsonBody))
+	req.Header.Set("Authorization", "Bearer "+d.AccessToken)
+	req.Header.Set("Content-Type", "application/json")
+	resp, err := http.DefaultClient.Do(req)
+	if err != nil {
+		return err
+	}
+	defer resp.Body.Close()
+	if resp.StatusCode != 200 && resp.StatusCode != 409 {
+		respBody, _ := io.ReadAll(resp.Body)
+		return fmt.Errorf("failed to create folder: %s, body: %s", resp.Status, string(respBody))
+	}
+	return nil
+}

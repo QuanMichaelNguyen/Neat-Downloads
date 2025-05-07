@@ -1,0 +1,204 @@
+body, html, #root, .app-bg-light {
+    min-height: 100vh;
+    margin: 0;
+    padding: 0;
+    background: #f4f8fb;
+    font-family: 'Segoe UI', 'Roboto', 'Arial', sans-serif;
+    color: #222;
+}
+
+.header-card {
+    text-align: center;
+    padding: 2rem 0 1rem 0;
+    background: #eaf2fb;
+    border-bottom: 1px solid #dbeafe;
+}
+
+.main-title {
+    font-size: 2.5rem;
+    font-weight: 700;
+    color: #2563eb;
+    margin-bottom: 0.2em;
+}
+
+.subtitle {
+    font-size: 1.2rem;
+    color: #4b5563;
+    margin-bottom: 0.5em;
+}
+
+.main-content.split-layout {
+    display: flex;
+    justify-content: center;
+    align-items: flex-start;
+    gap: 2rem;
+    padding: 2rem 1rem 1rem 1rem;
+    max-width: 1100px;
+    margin: 0 auto;
+}
+
+.left-panel, .right-panel {
+    flex: 1 1 350px;
+    min-width: 320px;
+}
+
+.section-card {
+    background: #fff;
+    border-radius: 18px;
+    box-shadow: 0 2px 12px 0 rgba(37,99,235,0.07);
+    margin-bottom: 2rem;
+    padding: 1.5rem 2rem;
+}
+
+.section-title {
+    font-size: 1.2rem;
+    font-weight: 600;
+    color: #2563eb;
+    margin-bottom: 1rem;
+}
+
+.setting-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 0.8rem;
+    font-size: 1rem;
+}
+
+.switch {
+    position: relative;
+    display: inline-block;
+    width: 44px;
+    height: 24px;
+    margin-left: 10px;
+}
+.switch input { display: none; }
+.slider {
+    position: absolute;
+    cursor: pointer;
+    top: 0; left: 0; right: 0; bottom: 0;
+    background: #d1d5db;
+    border-radius: 24px;
+    transition: .3s;
+}
+.slider:before {
+    position: absolute;
+    content: "";
+    height: 18px;
+    width: 18px;
+    left: 3px;
+    bottom: 3px;
+    background: #fff;
+    border-radius: 50%;
+    transition: .3s;
+    box-shadow: 0 1px 4px rgba(0,0,0,0.08);
+}
+input:checked + .slider {
+    background: #2563eb;
+}
+input:checked + .slider:before {
+    transform: translateX(20px);
+}
+.slider.round { border-radius: 24px; }
+
+.main-btn {
+    background: #2563eb;
+    color: #fff;
+    border: none;
+    border-radius: 8px;
+    padding: 0.7em 2em;
+    font-size: 1.1rem;
+    font-weight: 600;
+    cursor: pointer;
+    margin-bottom: 1rem;
+    transition: background 0.2s;
+    box-shadow: 0 2px 8px 0 rgba(37,99,235,0.08);
+}
+.main-btn.active, .main-btn:disabled {
+    background: #a5b4fc;
+    color: #fff;
+    cursor: not-allowed;
+}
+
+.status-row {
+    margin-top: 0.5rem;
+    font-size: 1rem;
+    display: flex;
+    align-items: center;
+    gap: 0.5em;
+}
+.status-active {
+    color: #2563eb;
+    font-weight: 600;
+}
+.status-idle {
+    color: #9ca3af;
+}
+
+.error-msg {
+    color: #dc2626;
+    background: #fef2f2;
+    border-radius: 6px;
+    padding: 0.5em 1em;
+    margin-top: 1em;
+    font-size: 0.98rem;
+}
+
+.activity-list {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+}
+.activity-list li {
+    padding: 0.5em 0;
+    border-bottom: 1px solid #f1f5f9;
+    font-size: 1rem;
+    display: flex;
+    align-items: center;
+    gap: 0.5em;
+}
+.activity-list li:last-child {
+    border-bottom: none;
+}
+.blue {
+    color: #2563eb;
+    font-weight: 500;
+}
+.activity-time {
+    color: #6b7280;
+    font-size: 0.95em;
+}
+
+.toast-popup {
+    position: fixed;
+    bottom: 32px;
+    left: 50%;
+    transform: translateX(-50%);
+    background: #2563eb;
+    color: #fff;
+    padding: 1em 2em;
+    border-radius: 12px;
+    font-size: 1.1rem;
+    box-shadow: 0 4px 16px 0 rgba(37,99,235,0.13);
+    z-index: 1000;
+    animation: fadeInUp 0.3s;
+}
+@keyframes fadeInUp {
+    from { opacity: 0; transform: translateY(30px) translateX(-50%); }
+    to { opacity: 1; transform: translateY(0) translateX(-50%); }
+}
+
+@media (max-width: 900px) {
+    .main-content.split-layout {
+        flex-direction: column;
+        gap: 1.5rem;
+        padding: 1rem 0.5rem;
+    }
+    .left-panel, .right-panel {
+        min-width: 0;
+        width: 100%;
+    }
+    .section-card {
+        padding: 1.2rem 1rem;
+    }
+}
