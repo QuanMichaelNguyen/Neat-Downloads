@@ -6,6 +6,7 @@ import SettingsCard from './components/SettingsCard';
 import ControlsCard from './components/ControlsCard';
 import ActivityCard from './components/ActivityCard';
 import Toast from './components/Toast';
+import DropboxLogin from './components/DropboxLogin';
 import './App.css';
 
 function App() {
@@ -68,6 +69,13 @@ function App() {
         // TODO: Call backend to update Dropbox setting if needed
     };
 
+    const handleDropboxLoginSuccess = (token) => {
+        setDropboxEnabled(true);
+        setToast("Successfully connected to Dropbox!");
+        setTimeout(() => setToast(""), 3500);
+        loadSettings();
+    };
+
     return (
         <div className="app-bg-light">
             <Header />
@@ -79,6 +87,11 @@ function App() {
                         dropboxFolder={settings.dropboxFolder}
                         onDropboxToggle={handleDropboxToggle}
                     />
+                    {!dropboxEnabled && (
+                        <div className="mt-4">
+                            <DropboxLogin onLoginSuccess={handleDropboxLoginSuccess} />
+                        </div>
+                    )}
                     <ControlsCard
                         isWatching={isWatching}
                         onStart={handleStartWatching}

@@ -2,21 +2,25 @@ package main
 
 import (
 	"context"
+	"fmt"
 	"log"
 	"neat-download/configs"
 	"neat-download/internal/categorizer"
+	"neat-download/internal/cloud"
 	"neat-download/internal/watcher"
-	"github.com/wailsapp/wails/v2/pkg/runtime"
 	"path/filepath"
 	"time"
+
+	"github.com/wailsapp/wails/v2/pkg/runtime"
 )
 
 // App struct
 type App struct {
-	ctx         context.Context
-	config      *configs.Config
-	categorizer *categorizer.Categorizer
-	fileWatcher *watcher.Watcher
+	ctx           context.Context
+	config        *configs.Config
+	categorizer   *categorizer.Categorizer
+	fileWatcher   *watcher.Watcher
+	dropboxClient *cloud.DropboxClient
 }
 
 // NewApp creates a new App application struct
@@ -68,11 +72,22 @@ func (a *App) startup(ctx context.Context) {
 
 // GetSettings returns the current config settings
 func (a *App) GetSettings() map[string]interface{} {
+	dropboxEnabled := a.config.EnableDropbox
+	// Check for a valid Dropbox token
+	if a.dropboxClient == nil {
+		a.dropboxClient = cloud.NewDropboxClient(
+			a.config.DropboxAppKey,
+			a.config.DropboxAppSecret,
+		)
+	}
+	if a.dropboxClient.AccessToken != "" {
+		dropboxEnabled = true
+	}
 	return map[string]interface{}{
 		"watchDir":       a.config.WatchDir,
 		"categories":     a.config.Categories,
 		"filePatterns":   a.config.FilePatterns,
-		"dropboxEnabled": a.config.EnableDropbox,
+		"dropboxEnabled": dropboxEnabled,
 		"dropboxFolder":  a.config.DropboxFolder,
 	}
 }
@@ -85,4 +100,32 @@ func (a *App) StartWatching() string {
 		return "Error starting watcher: " + err.Error()
 	}
 	return "Monitoring started successfully"
+}
+
+// GetDropboxAuthURL returns the Dropbox OAuth URL
+func (a *App) GetDropboxAuthURL() string {
+	if a.dropboxClient == nil {
+		a.dropboxClient = cloud.NewDropboxClient(
+			a.config.DropboxAppKey,
+			a.config.DropboxAppSecret,
+		)
+	}
+	return a.dropboxClient.GetAuthURL()
+}
+
+// ExchangeDropboxCode exchanges the authorization code for tokens
+func (a *App) ExchangeDropboxCode(code string) (map[string]string, error) {
+	if a.dropboxClient == nil {
+		return nil, fmt.Errorf("dropbox client not initialized")
+	}
+
+	err := a.dropboxClient.ExchangeCodeForToken(code)
+	if err != nil {
+		return nil, err
+	}
+
+	return map[string]string{
+		"accessToken":  a.dropboxClient.AccessToken,
+		"refreshToken": a.dropboxClient.RefreshToken,
+	}, nil
 }

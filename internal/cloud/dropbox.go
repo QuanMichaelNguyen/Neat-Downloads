@@ -16,36 +16,79 @@ type DropboxClient struct {
 	AppSecret    string
 	AccessToken  string
 	RefreshToken string
+	tokenManager *TokenManager
 }
 
 // Make a new DropBox Client
 func NewDropboxClient(appKey, appSecret string) *DropboxClient {
-	return &DropboxClient{
-		AppKey:    appKey,
-		AppSecret: appSecret,
+	client := &DropboxClient{
+		AppKey:       appKey,
+		AppSecret:    appSecret,
+		tokenManager: NewTokenManager(),
 	}
+	
+	// Try to load existing tokens
+	if tokenData, err := client.tokenManager.LoadTokens(); err == nil && tokenData != nil {
+		client.AccessToken = tokenData.AccessToken
+		client.RefreshToken = tokenData.RefreshToken
+	}
+	
+	return client
 }
 
 // GetAuthURL returns the OAuth URL --> user can authorize the app
-
 func (d *DropboxClient) GetAuthURL() string {
 	params := url.Values{}
 	params.Add("client_id", d.AppKey)
 	params.Add("response_type", "code")
-	params.Add("redirect_uri", "http://localhost:8080/auth/callback")
+	params.Add("redirect_uri", "http://localhost:34115/auth/callback")
 
 	return "https://www.dropbox.com/oauth2/authorize?" + params.Encode()
 }
 
-// ExchangeCodeForToken exchanges the authorization code for an access token
+// RefreshAccessToken refreshes the access token using the refresh token
+func (d *DropboxClient) RefreshAccessToken() error {
+	if d.RefreshToken == "" {
+		return fmt.Errorf("no refresh token available")
+	}
 
+	data := url.Values{}
+	data.Set("grant_type", "refresh_token")
+	data.Set("refresh_token", d.RefreshToken)
+	data.Set("client_id", d.AppKey)
+	data.Set("client_secret", d.AppSecret)
+
+	res, err := http.PostForm("https://api.dropboxapi.com/oauth2/token", data)
+	if err != nil {
+		return err
+	}
+	defer res.Body.Close()
+
+	var result struct {
+		AccessToken string `json:"access_token"`
+		Error       string `json:"error"`
+	}
+
+	if err := json.NewDecoder(res.Body).Decode(&result); err != nil {
+		return err
+	}
+
+	if result.Error != "" {
+		return fmt.Errorf("dropbox error: %s", result.Error)
+	}
+
+	d.AccessToken = result.AccessToken
+	return d.tokenManager.SaveTokens(d.AccessToken, d.RefreshToken)
+}
+
+// ExchangeCodeForToken exchanges the authorization code for an access token
 func (d *DropboxClient) ExchangeCodeForToken(code string) error {
 	data := url.Values{}
 	data.Set("code", code)
 	data.Set("grant_type", "authorization_code")
 	data.Set("client_id", d.AppKey)
 	data.Set("client_secret", d.AppSecret)
-	data.Set("redirect_uri", "http://localhost:8080/auth/callback")
+	data.Set("redirect_uri", "http://localhost:34115/auth/callback")
 
 	res, err := http.PostForm("https://api.dropboxapi.com/oauth2/token", data)
 	if err != nil {
@@ -67,9 +110,11 @@ func (d *DropboxClient) ExchangeCodeForToken(code string) error {
 		return fmt.Errorf("dropbox error: %s", result.Error)
 	}
 
-	d.AccessToken = result.AccessToken   // User's access token
-	d.RefreshToken = result.RefreshToken // User's refresh token
-	return nil
+	d.AccessToken = result.AccessToken
+	d.RefreshToken = result.RefreshToken
+	
+	// Save tokens
+	return d.tokenManager.SaveTokens(d.AccessToken, d.RefreshToken)
 }
 
 // ListFiles lists files in a Dropbox directory
